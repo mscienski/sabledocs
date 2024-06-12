@@ -24,6 +24,7 @@ class MessageField(CodeItem):
         self.package: Optional[Package] = None
         self.type_kind = "UNKNOWN"
         self.oneof_name: Optional[str] = None
+        self.extensions: None
 
     def __repr__(self):
         filtered_vars = dict(filter(lambda elem: elem[0] != "package", vars(self).items()))
@@ -50,7 +51,7 @@ class Message(CodeItem):
     @property
     def full_type(self):
         return self.full_name
-    
+
     @property
     def has_any_fields_with_default_value(self):
         return any(filter(lambda f: f.default_value, self.fields))

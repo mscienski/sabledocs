@@ -1,4 +1,5 @@
 from typing import Dict, Sequence
+from google.protobuf.descriptor_pb2 import FieldOptions
 from google.protobuf.descriptor_pb2 import FileDescriptorSet
 from google.protobuf.descriptor_pb2 import EnumDescriptorProto
 from google.protobuf.descriptor_pb2 import EnumValueDescriptorProto
@@ -8,9 +9,7 @@ from google.protobuf.descriptor_pb2 import ServiceDescriptorProto
 from google.protobuf.descriptor_pb2 import MethodDescriptorProto
 from sabledocs.proto_model import MessageField, Message, EnumValue, Enum, OneOfFieldGroup, ServiceMethod, ServiceMethodArgument, Service, Package, LocationInfo, SableContext
 from sabledocs.sable_config import MemberOrdering, RepositoryType, SableConfig
-import pprint
 import markdown
-import pprint
 import re
 from furl import furl
 
@@ -141,6 +140,12 @@ def parse_field(field: FieldDescriptorProto, containing_message: DescriptorProto
     mf.default_value = field.default_value
     mf.type = extract_type_name_from_full_name(field.type_name.strip(".")) if field.type_name != "" else to_type_name(field.type)
     mf.type_kind = "MESSAGE" if field.type == FIELD_TYPE_MESSAGE else "ENUM" if field.type == FIELD_TYPE_ENUM else "UNKNOWN"
+    mf.extensions = containing_message.DESCRIPTOR.GetOptions()
+
+    opts = FieldOptions()
+    opts.ParseFromString(field.DESCRIPTOR.GetOptions().SerializeToString())
+    for f in opts.DESCRIPTOR.fields:
+        print(f.type_name)
 
     if mf.type.endswith("Entry"):
         entry_nested_type = next(filter(lambda m: m.name == mf.type, ctx.package.messages), None)
